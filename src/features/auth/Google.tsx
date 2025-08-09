@@ -31,16 +31,14 @@ export default function Google() {
       const querySnapshot = await getDocs(userQuery);
 
       if (!querySnapshot.empty) {
-        //user found
-       toast.success(`Welcome back, ${UserInfo.name || "User"} 👋`);
-        navigate("/");
-        
-      } else {
-        // User not found
-          await addDoc(collection(db, "userInfo"), UserInfo);
+        //user not found
+        await addDoc(collection(db, "userInfo"), UserInfo);
         toast.success("Welcome! Your account has been created 🎉");
         navigate("/");
-       
+      } else {
+        // User found
+        toast.success(`Welcome back, ${UserInfo.name || "User"} 👋`);
+        navigate("/");
       }
     } catch (error) {
       console.error(error);
