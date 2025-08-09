@@ -10,7 +10,17 @@ import { useNavigate } from "react-router-dom";
 
 export default function Google() {
   const [isLoading, setIsLoading] = useState(false);
-  //   const [userInfo, setUserInfo] = useState<any>(null);
+  const [UserInfo, setUserInfo] = useState<{
+    name: string;
+    email: string;
+    profilePicture: string;
+    uid: string;
+  }>({
+    name: " ",
+    email: " ",
+    profilePicture: " ",
+    uid: "",
+  });
   const AuthProvider = new GoogleAuthProvider();
   const navigate = useNavigate();
 
@@ -18,21 +28,22 @@ export default function Google() {
     setIsLoading(true);
     try {
       const res = await signInWithPopup(auth, AuthProvider);
-      const UserInfo = {
+      const newUserInfo = {
         name: res.user.displayName || "",
         email: res.user.email || "",
         profilePicture: res.user.photoURL || "",
         uid: res.user.uid || "",
       };
+      setUserInfo(newUserInfo);
       const userQuery = query(
         collection(db, "userInfo"),
-        where("uid", "==", UserInfo.uid)
+        where("uid", "==", newUserInfo.uid)
       );
       const querySnapshot = await getDocs(userQuery);
 
-      if (!querySnapshot.empty) {
+      if (querySnapshot.empty) {
         //user not found
-        await addDoc(collection(db, "userInfo"), UserInfo);
+        await addDoc(collection(db, "userInfo"), newUserInfo);
         toast.success("Welcome! Your account has been created 🎉");
         navigate("/");
       } else {
