@@ -27,7 +27,7 @@ export default function Google() {
   useEffect(() => {
     if (UserInfo.uid) {
       // Sync localStorage
-      localStorage.setItem("userInfo", JSON.stringify(UserInfo));
+      
 
       // Firestore queries + navigation + toasts
       (async () => {
@@ -40,9 +40,11 @@ export default function Google() {
 
           if (querySnapshot.empty) {
             await addDoc(collection(db, "userInfo"), UserInfo);
-            toast.success("Welcome! Your account has been created 🎉");
+            toast.success(`Welcome ${UserInfo.name}! Your account has been created 🎉`);
+             localStorage.setItem("userInfo", JSON.stringify(UserInfo));
           } else {
             toast.success(`Welcome back, ${UserInfo.name} 👋`);
+             localStorage.setItem("userInfo", JSON.stringify(UserInfo));
           }
 
           navigate("/");
@@ -66,6 +68,7 @@ export default function Google() {
         profilePicture: res.user.photoURL || "",
         uid: res.user.uid || "",
       });
+     
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please try again.");
