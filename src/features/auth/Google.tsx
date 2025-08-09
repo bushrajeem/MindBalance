@@ -30,16 +30,17 @@ export default function Google() {
       );
       const querySnapshot = await getDocs(userQuery);
 
-      if (querySnapshot.empty) {
-        //user not found
-        await addDoc(collection(db, "userInfo"), UserInfo);
-        toast.success("Welcome! Your account has been created 🎉");
+      if (!querySnapshot.empty) {
+        //user found
+       toast.success(`Welcome back, ${UserInfo.name || "User"} 👋`);
         navigate("/");
         
       } else {
-        // User found
-        toast.success(`Welcome back, ${UserInfo.name || "User"} 👋`);
+        // User not found
+          await addDoc(collection(db, "userInfo"), UserInfo);
+        toast.success("Welcome! Your account has been created 🎉");
         navigate("/");
+       
       }
     } catch (error) {
       console.error(error);
