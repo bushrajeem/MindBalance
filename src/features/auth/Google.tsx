@@ -25,6 +25,7 @@ export default function Google() {
   const navigate = useNavigate();
 
   const handleLogin = async () => {
+
     setIsLoading(true);
     try {
       const res = await signInWithPopup(auth, AuthProvider);
@@ -35,6 +36,7 @@ export default function Google() {
         uid: res.user.uid || "",
       };
       setUserInfo(newUserInfo);
+      localStorage.setItem("userInfo", JSON.stringify(newUserInfo));
       const userQuery = query(
         collection(db, "userInfo"),
         where("uid", "==", newUserInfo.uid)
@@ -45,11 +47,15 @@ export default function Google() {
         //user not found
         await addDoc(collection(db, "userInfo"), newUserInfo);
         toast.success("Welcome! Your account has been created 🎉");
+       
+        console.log(newUserInfo.name);
         navigate("/");
+        
       } else {
         // User found
-        toast.success(`Welcome back, ${UserInfo.name || "User"} 👋`);
+        toast.success(`Welcome back, ${newUserInfo.name} 👋`);
         navigate("/");
+        
       }
     } catch (error) {
       console.error(error);
