@@ -12,6 +12,8 @@ export function LoginForm({
   ...props
 }: React.ComponentProps<"form">) {
   const [isLoading, setIsLoading] = useState(false);
+  console.log(setIsLoading);
+  
 
   return (
     <form className={cn("flex flex-col gap-6", className)} {...props}>

@@ -1,8 +1,12 @@
-import Footer from "./Footer"
-import Header from "./Header"
+import type { ReactNode } from "react";
+import Footer from "./Footer";
+import Header from "./Header";
 
+interface LayoutProps {
+  children: ReactNode;
+}
 
-function Layouts({children}) {
+function Layouts({children} : LayoutProps) {
   return (
     <div>
       <Header />
