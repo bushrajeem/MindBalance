@@ -4,7 +4,7 @@ import { GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 import { addDoc, collection, getDocs, query, where } from "firebase/firestore";
 import { motion } from "framer-motion";
 import { Loader } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { useNavigate } from "react-router-dom";
 
@@ -24,39 +24,48 @@ export default function Google() {
   const AuthProvider = new GoogleAuthProvider();
   const navigate = useNavigate();
 
-  const handleLogin = async () => {
+  useEffect(() => {
+    if (UserInfo.uid) {
+      // Sync localStorage
+      localStorage.setItem("userInfo", JSON.stringify(UserInfo));
 
+      // Firestore queries + navigation + toasts
+      (async () => {
+        try {
+          const userQuery = query(
+            collection(db, "userInfo"),
+            where("uid", "==", UserInfo.uid)
+          );
+          const querySnapshot = await getDocs(userQuery);
+
+          if (querySnapshot.empty) {
+            await addDoc(collection(db, "userInfo"), UserInfo);
+            toast.success("Welcome! Your account has been created 🎉");
+          } else {
+            toast.success(`Welcome back, ${UserInfo.name} 👋`);
+          }
+
+          navigate("/");
+        } catch (error) {
+          console.error(error);
+          toast.error("An error occurred while fetching user info.");
+        } finally {
+          setIsLoading(false);
+        }
+      })();
+    }
+  }, [UserInfo, navigate]);
+
+  const handleLogin = async () => {
     setIsLoading(true);
     try {
       const res = await signInWithPopup(auth, AuthProvider);
-      const newUserInfo = {
+      setUserInfo({
         name: res.user.displayName || "",
         email: res.user.email || "",
         profilePicture: res.user.photoURL || "",
         uid: res.user.uid || "",
-      };
-      setUserInfo(newUserInfo);
-      localStorage.setItem("userInfo", JSON.stringify(newUserInfo));
-      const userQuery = query(
-        collection(db, "userInfo"),
-        where("uid", "==", newUserInfo.uid)
-      );
-      const querySnapshot = await getDocs(userQuery);
-
-      if (querySnapshot.empty) {
-        //user not found
-        await addDoc(collection(db, "userInfo"), newUserInfo);
-        toast.success("Welcome! Your account has been created 🎉");
-       
-        console.log(newUserInfo.name);
-        navigate("/");
-        
-      } else {
-        // User found
-        toast.success(`Welcome back, ${newUserInfo.name} 👋`);
-        navigate("/");
-        
-      }
+      });
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please try again.");
